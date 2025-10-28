@@ -1,0 +1,35 @@
+# Example Amazon Review Scraper Configuration
+
+search_criteria:
+  keywords:
+    - "wireless headphones"
+    - "bluetooth"
+  min_rating: 4
+  max_rating: 5
+  verified_purchase_only: true
+  min_review_length: 50
+  max_results: 100
+  sort_by: "helpful"
+  sort_order: "desc"
+
+output_format: "xlsx"
+amazon_domain: "https://www.amazon.com"
+
+browser:
+  headless: true
+  viewport:
+    width: 1920
+    height: 1080
+  timeout: 30000
+
+rate_limiting:
+  delay_between_requests: 3000  # 3 seconds
+  max_concurrent_pages: 2
+  respect_robots_txt: true
+  random_delay_variation: 0.25
+
+error_handling:
+  max_retries: 3
+  retry_delay: 5000
+  continue_on_error: true
+  captcha_timeout: 30000

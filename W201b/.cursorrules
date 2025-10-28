@@ -1,0 +1,207 @@
+# W201b Personal Accounting Assistant
+
+## Project Overview
+Develop a React-based personal accounting assistant with the following features:
+- 快速记账 (Quick Expense Entry): Fast and intuitive expense recording
+- 数据可视化 (Data Visualization): Charts and graphs for financial insights
+- 预算提醒 (Budget Reminders): Alert system for budget tracking
+
+## Technology Stack
+- **Framework**: React (latest stable version)
+- **Language**: TypeScript for type safety
+- **UI Library**: Consider using modern UI libraries (e.g., Ant Design, Material-UI, or shadcn/ui)
+- **Charts**: Use a library like Recharts or Chart.js for data visualization
+- **State Management**: React Context API or Zustand for state management
+- **Routing**: React Router if multiple pages are needed
+- **Styling**: CSS Modules, Styled Components, or Tailwind CSS
+
+## Development Guidelines
+
+### Code Style
+- Use functional components with hooks
+- Follow React best practices and conventions
+- Implement proper TypeScript types for all props and state
+- Use meaningful component and variable names (both English and Chinese if needed)
+- Keep components small and focused (single responsibility principle)
+
+### Component Structure
+- Organize components in a modular structure
+- Create reusable UI components (Button, Input, Card, etc.)
+- Separate business logic from presentation components
+- Use custom hooks for shared logic
+
+### Key Features Implementation
+
+#### 1. Quick Expense Entry (快速记账)
+- Simple form with date, category, amount, and description fields
+- Provide quick category buttons or dropdown
+- Support for both income and expense tracking
+- Local storage for persistence
+
+#### 2. Data Visualization (数据可视化)
+- Expense breakdown by category (pie chart)
+- Daily/weekly/monthly trends (line or bar chart)
+- Income vs Expense comparison
+- Interactive charts with tooltips and legends
+
+#### 3. Budget Reminders (预算提醒)
+- Set budget limits for different categories or total spending
+- Visual indicators when approaching limits
+- Notifications or alerts when budget is exceeded
+- Budget vs Actual comparison chart
+
+### Data Structure
+```typescript
+interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  category: string;
+  amount: number;
+  date: string;
+  description?: string;
+}
+
+interface Budget {
+  category: string;
+  limit: number;
+  period: 'daily' | 'weekly' | 'monthly';
+}
+```
+
+### Performance
+- Use React.memo for expensive components
+- Implement lazy loading if needed
+- Optimize re-renders with proper dependency arrays
+- Consider using useMemo and useCallback for performance-critical code
+
+### Accessibility
+- Use semantic HTML elements
+- Include proper ARIA labels
+- Ensure keyboard navigation works
+- Maintain sufficient color contrast
+
+### Testing (Optional)
+- Write unit tests for utility functions
+- Test critical user flows
+- Consider using React Testing Library
+
+## File Organization
+```
+W201b/
+├── src/
+│   ├── components/
+│   │   ├── common/
+│   │   ├── charts/
+│   │   └── forms/
+│   ├── hooks/
+│   ├── utils/
+│   ├── types/
+│   ├── contexts/
+│   └── App.tsx
+├── public/
+└── package.json
+```
+
+## Localization (if needed)
+- Support both English and Chinese interfaces
+- Use i18n library if multi-language support is required
+
+## Browser Compatibility
+- Support modern browsers (Chrome, Firefox, Safari, Edge)
+- Mobile-responsive design
+
+## Responsive Design 
+
+### Mobile-First Approach
+- Design with mobile devices as the primary target
+- Use CSS Grid and Flexbox for flexible layouts
+- Implement breakpoints: mobile (< 768px), tablet (768px - 1024px), desktop (> 1024px)
+- Test on actual devices or use browser DevTools for responsive testing
+
+### Touch-Friendly Interface
+- Minimum touch target size: 44px x 44px for buttons and interactive elements
+- Increase spacing between clickable elements to prevent accidental taps
+- Use swipe gestures where appropriate (e.g., swipe to delete transactions)
+- Implement pull-to-refresh functionality
+
+### Mobile-Specific Optimizations
+- Optimize charts for small screens (simplified legends, horizontal scrolling if needed)
+- Use bottom navigation or fixed action button for quick access to main actions
+- Implement collapsible sections to save vertical space
+- Use modals or drawers instead of new pages for secondary actions
+
+### Responsive Typography
+- Use relative units (rem, em) for font sizes
+- Ensure text remains readable on small screens (minimum 14px for body text)
+- Use appropriate line heights for mobile reading (1.5-1.6)
+
+### Chart Adaptations
+- Make charts scrollable horizontally on mobile if necessary
+- Simplify chart legends and labels on small screens
+- Consider using tab-based or accordion layouts for multiple charts
+- Touch-optimized tooltips and interactive elements
+
+## User Experience
+
+### Intuitive Navigation
+- Clear and consistent navigation structure
+- Breadcrumbs or back buttons where appropriate
+- Quick access to frequently used features
+- Minimize the number of clicks to complete tasks
+
+### Visual Feedback
+- Immediate feedback for user actions (button states, loading indicators)
+- Success/error messages for operations
+- Smooth animations and transitions (use CSS transitions or libraries like Framer Motion)
+- Hover states and active states for interactive elements
+
+### Form Design
+- Large input fields for easy data entry on mobile
+- Use appropriate input types (number, date, email, etc.)
+- Inline validation with clear error messages
+- Auto-focus on first input when appropriate
+- Keyboard-friendly (numeric keyboard for amounts)
+
+### Loading States
+- Skeleton screens for content loading
+- Progress indicators for long-running operations
+- Disable interactive elements during operations to prevent duplicate submissions
+
+### Error Handling
+- User-friendly error messages in Chinese and English
+- Graceful degradation when features fail
+- Provide clear recovery options
+- Log errors for debugging (console or error tracking service)
+
+### Performance Optimization
+- Optimize images (WebP format, lazy loading)
+- Minimize initial bundle size
+- Code splitting for routes
+- Debounce search and filter inputs
+- Virtual scrolling for long lists
+
+### Accessibility Features
+- Proper semantic HTML (header, nav, main, footer)
+- ARIA labels for screen readers
+- Keyboard navigation support
+- Focus management (skip links, focus traps in modals)
+- High contrast mode support
+- Disable animations for users who prefer reduced motion (respect prefers-reduced-motion)
+
+### Data Persistence
+- Auto-save draft entries
+- Confirm before deleting important data
+- Clear "no data" states with helpful messages
+- Export functionality (CSV, PDF) for backups
+
+### Personalization
+- Remember user preferences (theme, default categories)
+- Customizable categories
+- Option to set default currency
+- Dark mode support (prefers-color-scheme)
+
+## Notes
+- Focus on creating an intuitive and visually appealing user interface
+- Ensure the app is easy to use and navigate
+- Implement proper error handling
+- Add loading states for better UX
