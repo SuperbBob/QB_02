@@ -197,11 +197,24 @@ class PDFRAGApp:
             print_error("File must be a PDF")
             return
         
+        # Ask about processing options
+        print("\n" + Colors.BOLD + "Processing Options:" + Colors.END)
+        print("  Images and tables are skipped by default for faster processing (1-3 min)")
+        print("  Enable them for comprehensive extraction (10-30 min, requires LLM)")
+        
+        process_images = input("\nProcess images? (y/N): ").strip().lower() == 'y'
+        process_tables = input("Process tables? (y/N): ").strip().lower() == 'y'
+        
         print_info(f"Processing: {os.path.basename(pdf_path)}")
-        print_warning("This may take a few minutes depending on PDF size...")
+        if process_images or process_tables:
+            print_warning("This may take 10-30 minutes with images/tables enabled...")
+        else:
+            print_warning("This may take 1-3 minutes (text only)...")
         
         try:
-            result = self.pipeline.ingest_pdf(pdf_path)
+            result = self.pipeline.ingest_pdf(pdf_path, 
+                                             process_images=process_images,
+                                             process_tables=process_tables)
             
             print_success("PDF processed successfully!")
             print(f"\n  File: {result['file_name']}")
@@ -229,7 +242,16 @@ class PDFRAGApp:
             return
         
         print_info(f"Found {len(pdf_files)} PDF files")
-        confirm = input("Process all files? (y/n): ").strip().lower()
+        
+        # Ask about processing options
+        print("\n" + Colors.BOLD + "Processing Options:" + Colors.END)
+        print("  Default: Text only (fast, 1-3 min per PDF)")
+        print("  With images/tables: Comprehensive (slow, 10-30 min per PDF)")
+        
+        process_images = input("\nProcess images? (y/N): ").strip().lower() == 'y'
+        process_tables = input("Process tables? (y/N): ").strip().lower() == 'y'
+        
+        confirm = input(f"\nProcess all {len(pdf_files)} files? (y/n): ").strip().lower()
         
         if confirm != 'y':
             return
@@ -238,7 +260,9 @@ class PDFRAGApp:
         for i, pdf_path in enumerate(pdf_files, 1):
             print(f"\n[{i}/{len(pdf_files)}] Processing: {os.path.basename(pdf_path)}")
             try:
-                result = self.pipeline.ingest_pdf(pdf_path)
+                result = self.pipeline.ingest_pdf(pdf_path,
+                                                  process_images=process_images,
+                                                  process_tables=process_tables)
                 print_success(f"Indexed {result['indexed']} chunks")
                 success_count += 1
             except Exception as e:
@@ -281,10 +305,18 @@ class PDFRAGApp:
             print_error("Invalid input")
             return
         
+        # Ask about processing options
+        print("\n" + Colors.BOLD + "Processing Options:" + Colors.END)
+        print("  Default: Text only (fast)")
+        process_images = input("Process images? (y/N): ").strip().lower() == 'y'
+        process_tables = input("Process tables? (y/N): ").strip().lower() == 'y'
+        
         for i, pdf_path in enumerate(files_to_process, 1):
             print(f"\n[{i}/{len(files_to_process)}] Processing: {os.path.basename(pdf_path)}")
             try:
-                result = self.pipeline.ingest_pdf(pdf_path)
+                result = self.pipeline.ingest_pdf(pdf_path,
+                                                  process_images=process_images,
+                                                  process_tables=process_tables)
                 print_success(f"Indexed {result['indexed']} chunks")
             except Exception as e:
                 print_error(f"Failed: {e}")

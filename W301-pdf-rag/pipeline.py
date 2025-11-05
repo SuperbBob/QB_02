@@ -31,16 +31,25 @@ class PDFRAGPipeline:
         self.index_name = index_name
         self.use_openai_embedding = use_openai_embedding
     
-    def ingest_pdf(self, pdf_path: str, file_name: str = None) -> Dict[str, Any]:
+    def ingest_pdf(self, pdf_path: str, file_name: str = None, 
+                   process_images: bool = None, process_tables: bool = None) -> Dict[str, Any]:
         """
         Ingest a PDF document into the RAG system
         
         Args:
             pdf_path: Path to PDF file
             file_name: Optional custom file name
+            process_images: Whether to extract images (defaults to RAGConfig.PROCESS_IMAGES)
+                          Set to True for documents with important diagrams/figures
+            process_tables: Whether to extract tables (defaults to RAGConfig.PROCESS_TABLES)
+                          Set to True for documents with important structured data
             
         Returns:
             Dictionary with ingestion statistics
+            
+        Note:
+            By default, images and tables are skipped for faster processing.
+            Enable them for comprehensive document understanding (5-10x slower).
         """
         print(f"\n{'='*60}")
         print(f"Starting PDF ingestion: {pdf_path}")
@@ -51,7 +60,7 @@ class PDFRAGPipeline:
         
         # Step 1: Extract content from PDF
         print("Step 1: Extracting content from PDF...")
-        text_pages, images, tables = process_pdf(pdf_path)
+        text_pages, images, tables = process_pdf(pdf_path, process_images, process_tables)
         
         # Step 2: Chunk and prepare content
         print("\nStep 2: Chunking and preparing content...")

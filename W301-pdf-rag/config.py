@@ -64,7 +64,11 @@ class RAGConfig:
     TOP_K_RERANK = 5
     RRF_K = 60  # RRF constant
     
-    # Image extraction parameters
+    # Processing options (set to False for faster ingestion)
+    PROCESS_IMAGES = False  # Set to True to extract and caption images (slower, requires vision model)
+    PROCESS_TABLES = False  # Set to True to extract and summarize tables (slower, requires LLM)
+    
+    # Image extraction parameters (only used if PROCESS_IMAGES = True)
     MIN_IMAGE_WIDTH = 200
     MIN_IMAGE_HEIGHT = 100
     IMAGE_WIDTH_RATIO = 3  # Minimum ratio of image width to page width
