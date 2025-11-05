@@ -360,21 +360,43 @@ def extract_tables_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
     return results
 
 
-def process_pdf(pdf_path: str) -> Tuple[List[Dict], List[Dict], List[Dict]]:
+def process_pdf(pdf_path: str, process_images: bool = None, process_tables: bool = None) -> Tuple[List[Dict], List[Dict], List[Dict]]:
     """
     Process a PDF file and extract all content types
     
     Args:
         pdf_path: Path to PDF file
+        process_images: Whether to extract images (defaults to RAGConfig.PROCESS_IMAGES)
+        process_tables: Whether to extract tables (defaults to RAGConfig.PROCESS_TABLES)
         
     Returns:
         Tuple of (text_content, images, tables)
     """
     logger.info(f"Starting PDF processing: {pdf_path}")
     
+    # Use config defaults if not specified
+    if process_images is None:
+        process_images = RAGConfig.PROCESS_IMAGES
+    if process_tables is None:
+        process_tables = RAGConfig.PROCESS_TABLES
+    
+    # Always extract text
     text_content = extract_text_from_pdf(pdf_path)
-    images = extract_images_from_pdf(pdf_path)
-    tables = extract_tables_from_pdf(pdf_path)
+    
+    # Conditionally extract images and tables
+    if process_images:
+        logger.info("Extracting images (this may take a while)...")
+        images = extract_images_from_pdf(pdf_path)
+    else:
+        logger.info("Skipping image extraction (set process_images=True to enable)")
+        images = []
+    
+    if process_tables:
+        logger.info("Extracting tables (this may take a while)...")
+        tables = extract_tables_from_pdf(pdf_path)
+    else:
+        logger.info("Skipping table extraction (set process_tables=True to enable)")
+        tables = []
     
     logger.info(f"PDF processing complete: {len(text_content)} text pages, "
                 f"{len(images)} images, {len(tables)} tables")
