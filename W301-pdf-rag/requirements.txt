@@ -1,0 +1,28 @@
+# Core dependencies
+openai>=1.0.0
+elasticsearch>=8.0.0
+python-dotenv>=1.0.0
+
+# PDF processing
+pymupdf>=1.23.0
+langchain>=0.1.0
+langchain-community>=0.0.10
+langchain-text-splitters>=0.0.1
+
+# Text processing and chunking
+tiktoken>=0.5.0
+jieba>=0.42.1
+
+# HTTP requests
+requests>=2.31.0
+
+# Optional: For local cross-encoder reranking
+sentence-transformers>=2.2.0
+
+# Optional: For async operations
+aiohttp>=3.9.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
