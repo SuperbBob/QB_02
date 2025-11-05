@@ -20,6 +20,11 @@ def create_index(index_name: str, include_metadata: bool = True) -> bool:
     """
     es = get_es()
     
+    # Auto-detect embedding dimension based on model
+    import os
+    use_ollama = os.getenv('USE_OLLAMA_EMBEDDINGS', 'false').lower() == 'true'
+    embedding_dim = 768 if use_ollama else ModelConfig.EMBEDDING_DIM
+    
     # Base mappings for text and vector
     mappings = {
         "properties": {
@@ -28,7 +33,7 @@ def create_index(index_name: str, include_metadata: bool = True) -> bool:
             }, 
             "vector": {
                 "type": "dense_vector",
-                "dims": ModelConfig.EMBEDDING_DIM,
+                "dims": embedding_dim,
                 "index": True,
                 "similarity": "cosine"
             },

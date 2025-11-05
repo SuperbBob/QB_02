@@ -125,10 +125,10 @@ class PDFRAGPipeline:
     
     def query(self, query: str, 
              top_k: int = None,
-             use_reranking: bool = True,
+             use_reranking: bool = None,
              rerank_method: str = 'api',
-             use_rag_fusion: bool = False,
-             use_query_decomposition: bool = False,
+             use_rag_fusion: bool = None,
+             use_query_decomposition: bool = None,
              chat_history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
         """
         Query the RAG system
@@ -136,10 +136,12 @@ class PDFRAGPipeline:
         Args:
             query: User query
             top_k: Number of documents to retrieve
-            use_reranking: Whether to apply reranking
+            use_reranking: Whether to apply reranking (defaults to RAGConfig.ENABLE_RERANKING)
             rerank_method: Reranking method ('api' or 'cross_encoder')
-            use_rag_fusion: Whether to use RAG Fusion
-            use_query_decomposition: Whether to use Query Decomposition
+            use_rag_fusion: Whether to use RAG Fusion (defaults to RAGConfig.ENABLE_RAG_FUSION)
+                          ⚠️ WARNING: Enabling this makes queries 3-5x slower
+            use_query_decomposition: Whether to use Query Decomposition (defaults to RAGConfig.ENABLE_QUERY_DECOMPOSITION)
+                                    ⚠️ WARNING: Enabling this makes queries slower
             chat_history: Chat history for coreference resolution
             
         Returns:
@@ -149,8 +151,21 @@ class PDFRAGPipeline:
         print(f"Processing query: {query}")
         print(f"{'='*60}\n")
         
+        # Use config defaults if not specified
         if top_k is None:
             top_k = RAGConfig.TOP_K_RETRIEVAL
+        if use_reranking is None:
+            use_reranking = RAGConfig.ENABLE_RERANKING
+        if use_rag_fusion is None:
+            use_rag_fusion = RAGConfig.ENABLE_RAG_FUSION
+        if use_query_decomposition is None:
+            use_query_decomposition = RAGConfig.ENABLE_QUERY_DECOMPOSITION
+        
+        # Performance warnings
+        if use_rag_fusion:
+            print("⚠️  RAG Fusion enabled: Queries will be 3-5x slower but more comprehensive")
+        if use_query_decomposition:
+            print("⚠️  Query Decomposition enabled: Queries will be slower for complex questions")
         
         # Step 1: Coreference resolution if chat history provided
         if chat_history:

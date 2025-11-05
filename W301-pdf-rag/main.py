@@ -331,10 +331,10 @@ class PDFRAGApp:
         
         print(f"Current index: {Colors.BOLD}{self.current_index}{Colors.END}")
         print("\nQuery modes:")
-        print("  1. Simple query")
-        print("  2. Query with RAG Fusion")
-        print("  3. Query with Query Decomposition")
-        print("  4. Multi-turn conversation")
+        print("  1. Simple Query          ⚡ FAST (3-5s) - Recommended")
+        print("  2. RAG Fusion            🐌 SLOW (15-30s) - Better recall")
+        print("  3. Query Decomposition   🐌 SLOW (20-40s) - Complex questions")
+        print("  4. Conversation          ⚡ FAST - Multi-turn chat")
         print("  5. Back to main menu")
         
         choice = input("\nSelect mode (1-5): ").strip()
@@ -353,20 +353,22 @@ class PDFRAGApp:
             print_error("Invalid option")
     
     def simple_query(self):
-        """Execute a simple query"""
+        """Execute a simple query (FAST mode)"""
         query = input("\nEnter your question: ").strip()
         
         if not query:
             print_error("Query cannot be empty")
             return
         
-        print_info("Searching...")
+        print_info("Searching... (Fast mode: ~3-5 seconds)")
         
         try:
             answer = self.pipeline.query(
                 query,
                 top_k=5,
-                use_reranking=True
+                use_reranking=True,
+                use_rag_fusion=False,  # Explicitly disable for speed
+                use_query_decomposition=False  # Explicitly disable for speed
             )
             
             self.display_answer(answer)
@@ -375,11 +377,19 @@ class PDFRAGApp:
             print_error(f"Query failed: {e}")
     
     def rag_fusion_query(self):
-        """Execute query with RAG Fusion"""
+        """Execute query with RAG Fusion (SLOW but comprehensive)"""
         query = input("\nEnter your question: ").strip()
         
         if not query:
             return
+        
+        print_warning("⚠️  RAG Fusion is 3-5x SLOWER than simple query (~15-30 seconds)")
+        print_info("   Better for complex queries that need multiple perspectives")
+        confirm = input("\nContinue with RAG Fusion? (y/N): ").strip().lower()
+        
+        if confirm != 'y':
+            print_info("Using simple query instead...")
+            return self.simple_query()
         
         print_info("Using RAG Fusion (generating multiple query variations)...")
         
@@ -397,11 +407,19 @@ class PDFRAGApp:
             print_error(f"Query failed: {e}")
     
     def decomposition_query(self):
-        """Execute query with Query Decomposition"""
+        """Execute query with Query Decomposition (SLOW but handles complex questions)"""
         query = input("\nEnter your complex question: ").strip()
         
         if not query:
             return
+        
+        print_warning("⚠️  Query Decomposition is SLOWER (~20-40 seconds)")
+        print_info("   Best for multi-part questions like 'Compare X and Y'")
+        confirm = input("\nContinue with Query Decomposition? (y/N): ").strip().lower()
+        
+        if confirm != 'y':
+            print_info("Using simple query instead...")
+            return self.simple_query()
         
         print_info("Using Query Decomposition (breaking into sub-queries)...")
         
