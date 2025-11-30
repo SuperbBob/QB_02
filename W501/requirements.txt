@@ -1,0 +1,30 @@
+# LangChain RAG Dependencies
+# 简单的 LangChain RAG 依赖
+
+# Core LangChain
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+langchain-text-splitters>=0.2.0
+langchain-openai>=0.1.0
+langchain-ollama>=1.0.0
+
+# PDF processing
+pymupdf>=1.23.0
+
+# Vector store
+faiss-cpu>=1.7.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# HTTP requests
+requests>=2.31.0
+
+# OpenAI
+openai>=1.0.0
+
+# Web framework (for API)
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
