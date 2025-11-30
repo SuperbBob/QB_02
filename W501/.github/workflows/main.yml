@@ -1,0 +1,97 @@
+# GitHub Actions - Deploy to AWS App Runner
+# 参考: https://github.com/jerrysf/course-devops-ai
+
+name: Deploy to AWS App Runner
+
+on:
+  push:
+    branches: [main, W501]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY || 'langchain-rag-app' }}
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        run: |
+          echo "TAG=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build and push Docker image
+        run: |
+          docker build --platform linux/amd64 -t ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} .
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+          
+          # Also tag as latest
+          docker tag ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }} ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Validate APP_RUNNER_ARN format
+        run: |
+          ARN="${{ secrets.APP_RUNNER_ARN }}"
+          if [[ ! "$ARN" =~ ^arn:aws:apprunner: ]]; then
+            echo "❌ APP_RUNNER_ARN does not look like a valid ARN: $ARN"
+            exit 1
+          fi
+          echo "✓ APP_RUNNER_ARN format is valid"
+
+      - name: Get App Runner service roles
+        id: get-roles
+        run: |
+          SERVICE_ARN="${{ secrets.APP_RUNNER_ARN }}"
+          
+          # Get service details
+          SERVICE_INFO=$(aws apprunner describe-service --service-arn "$SERVICE_ARN" --region ${{ env.AWS_REGION }})
+          
+          # Extract role ARNs
+          ACCESS_ROLE=$(echo "$SERVICE_INFO" | jq -r '.Service.SourceConfiguration.AuthenticationConfiguration.AccessRoleArn // empty')
+          INSTANCE_ROLE=$(echo "$SERVICE_INFO" | jq -r '.Service.InstanceConfiguration.InstanceRoleArn // empty')
+          
+          echo "APP_RUNNER_ACCESS_ROLE_ARN=$ACCESS_ROLE" >> $GITHUB_ENV
+          echo "APP_RUNNER_INSTANCE_ROLE_ARN=$INSTANCE_ROLE" >> $GITHUB_ENV
+          
+          echo "✓ Access Role: $ACCESS_ROLE"
+          echo "✓ Instance Role: $INSTANCE_ROLE"
+
+      - name: Deploy to App Runner
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: ${{ env.ECR_REPOSITORY }}
+          image: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+          region: ${{ env.AWS_REGION }}
+          access-role-arn: ${{ env.APP_RUNNER_ACCESS_ROLE_ARN }}
+          instance-role-arn: ${{ env.APP_RUNNER_INSTANCE_ROLE_ARN }}
+          port: 8080
+          cpu: 1
+          memory: 2
+          wait-for-service-stability-seconds: 600
+
+      - name: Output service URL
+        run: |
+          SERVICE_ARN="${{ secrets.APP_RUNNER_ARN }}"
+          SERVICE_URL=$(aws apprunner describe-service --service-arn "$SERVICE_ARN" --region ${{ env.AWS_REGION }} | jq -r '.Service.ServiceUrl')
+          echo "🚀 Deployment complete!"
+          echo "📍 Service URL: https://$SERVICE_URL"
+
